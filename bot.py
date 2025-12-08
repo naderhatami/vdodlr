@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQu
 import yt_dlp
 import os
 
-TOKEN = os.getenv("8549179660:AAGRCyktSUi7MYTdvPzjPDRCTq3XWuZ0ivA")
+TOKEN = os.getenv("TOKEN")
 CHANNEL_USERNAME = "@goodgirl_lingerie"
 
 async def start(update, context):
@@ -64,3 +64,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
