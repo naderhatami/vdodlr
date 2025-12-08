@@ -1,28 +1,28 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 import yt_dlp
 import os
 
-TOKEN = os.getenv("8549179660:AAGRCyktSUi7MYTdvPzjPDRCTq3XWuZ0ivA")  # توکن رباتت رو توی Railway یا محیط اجرا بذار
-CHANNEL_USERNAME = "@goodgirl_lingerie"  # یوزرنیم کانال تلگرام که باید عضو باشن
+TOKEN = os.getenv("8549179660:AAGRCyktSUi7MYTdvPzjPDRCTq3XWuZ0ivA")
+CHANNEL_USERNAME = "@goodgirl_lingerie"
 
-def start(update, context):
+async def start(update, context):
     user_id = update.message.from_user.id
-    chat_member = context.bot.get_chat_member(CHANNEL_USERNAME, user_id)
+    chat_member = await context.bot.get_chat_member(CHANNEL_USERNAME, user_id)
 
     if chat_member.status in ["member", "administrator", "creator"]:
-        update.message.reply_text("سلام! لینک ویدیو رو بفرست 🎬")
+        await update.message.reply_text("سلام! لینک ویدیو رو بفرست 🎬")
     else:
-        update.message.reply_text(f"برای استفاده از ربات باید عضو کانال {CHANNEL_USERNAME} بشی.")
+        await update.message.reply_text(f"برای استفاده از ربات باید عضو کانال {CHANNEL_USERNAME} بشی.")
 
-def get_formats(update, context):
+async def get_formats(update, context):
     url = update.message.text
     try:
         with yt_dlp.YoutubeDL({'listformats': True}) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = info.get('formats', [])
-    except Exception as e:
-        update.message.reply_text("خطا در گرفتن اطلاعات ویدیو ❌")
+    except Exception:
+        await update.message.reply_text("خطا در گرفتن اطلاعات ویدیو ❌")
         return
 
     keyboard = []
@@ -33,14 +33,14 @@ def get_formats(update, context):
 
     if keyboard:
         reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text("یکی از کیفیت‌ها رو انتخاب کن:", reply_markup=reply_markup)
+        await update.message.reply_text("یکی از کیفیت‌ها رو انتخاب کن:", reply_markup=reply_markup)
     else:
-        update.message.reply_text("کیفیت‌های قابل دانلود پیدا نشد ❌")
+        await update.message.reply_text("کیفیت‌های قابل دانلود پیدا نشد ❌")
 
-def button(update, context):
+async def button(update, context):
     query = update.callback_query
     format_id, url = query.data.split("|")
-    query.answer()
+    await query.answer()
 
     ydl_opts = {
         'format': format_id,
@@ -49,17 +49,18 @@ def button(update, context):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-        query.edit_message_text(text=f"دانلود با کیفیت {format_id} انجام شد ✅")
-        # اینجا می‌تونی فایل رو با context.bot.send_document بفرستی
-    except Exception as e:
-        query.edit_message_text(text="خطا در دانلود ویدیو ❌")
+        await query.edit_message_text(text=f"دانلود با کیفیت {format_id} انجام شد ✅")
+    except Exception:
+        await query.edit_message_text(text="خطا در دانلود ویدیو ❌")
 
-updater = Updater(TOKEN, use_context=True)
-dp = updater.dispatcher
+def main():
+    app = Application.builder().token(TOKEN).build()
 
-dp.add_handler(CommandHandler("start", start))
-dp.add_handler(MessageHandler(Filters.text & ~Filters.command, get_formats))
-dp.add_handler(CallbackQueryHandler(button))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_formats))
+    app.add_handler(CallbackQueryHandler(button))
 
-updater.start_polling()
-updater.idle()
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
