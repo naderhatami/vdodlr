@@ -17,20 +17,29 @@ async def start(update, context):
     if chat_member.status in ["member", "administrator", "creator"]:
         welcome_text = (
             "🌸 خوش اومدی دوست عزیز!\n\n"
-            "✨ اینجا می‌تونی لینک یوتیوب مورد علاقه حامد رو بفرستی و من برات دانلودش کنم.\n"
+            "✨ اینجا می‌تونی لینک یوتیوب رو بفرستی و من برات دانلودش کنم.\n"
             "📽️ فقط کافیه لینک رو بفرستی و کیفیت مورد نظرت رو انتخاب کنی.\n\n"
             "💡 آماده‌ای؟ لینک رو بفرست 🎬"
         )
         await update.message.reply_text(welcome_text)
     else:
-        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")]]
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")],
+            [InlineKeyboardButton("🔍 بررسی عضویت در کانال", callback_data="check_membership")]
+        ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
             "🚪 برای استفاده از ربات باید عضو کانال بشی.\n"
-            "👇 روی دکمه‌ی زیر بزن و عضو شو:",
+            "👇 روی دکمه‌های زیر بزن:",
             reply_markup=reply_markup
         )
 
+# هندلر برای دکمه بررسی عضویت
+async def check_membership(update, context):
+    query = update.callback_query
+    await query.answer()
+    # دوباره تابع start رو صدا می‌زنیم
+    await start(update, context)
 
 
 async def get_formats(update, context):
@@ -96,10 +105,12 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_formats))
     app.add_handler(CallbackQueryHandler(button))
+     app.add_handler(CallbackQueryHandler(check_membership, pattern="check_membership"))
     app.run_polling()
 
 if __name__ == "__main__":
     main()
+
 
 
 
