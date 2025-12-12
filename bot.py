@@ -20,6 +20,19 @@ async def start(update, context):
         await update.message.reply_text("برای استفاده از ربات باید عضو کانال بشی.همین الآن عضو شو : @goodgirl_lingerie")
 
 async def get_formats(update, context):
+    user_id = update.message.from_user.id
+    try:
+        chat_member = await context.bot.get_chat_member(CHANNEL_ID, user_id)
+    except Exception:
+        await update.message.reply_text("خطا در بررسی عضویت کانال ❌")
+        return
+
+    if chat_member.status not in ["member", "administrator", "creator"]:
+        await update.message.reply_text("برای استفاده از ربات باید عضو کانال بشی. همین الآن عضو شو : @goodgirl_lingerie")
+        return
+
+    # اگر عضو بود ادامه بده
+    await update.message.reply_text("لینک ویدیو رو بفرست ...")
     url = update.message.text.strip()
     try:
         with yt_dlp.YoutubeDL({}) as ydl:
@@ -34,16 +47,15 @@ async def get_formats(update, context):
         size = f.get("filesize") or f.get("filesize_approx")
         if f.get('format_note') and size:
             kb_text = f"{f['format_note']} - {round(size/1024/1024,1)}MB"
-            # فقط format_id ذخیره می‌کنیم
             keyboard.append([InlineKeyboardButton(kb_text, callback_data=f"{f['format_id']}")])
 
     if keyboard:
-        # ذخیره URL در user_data
         context.user_data['video_url'] = url
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text("یکی از کیفیت‌ها رو انتخاب کن:", reply_markup=reply_markup)
     else:
         await update.message.reply_text("کیفیت‌های قابل دانلود پیدا نشد ❌")
+
 
 async def button(update, context):
     query = update.callback_query
@@ -74,6 +86,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
