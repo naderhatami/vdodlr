@@ -23,12 +23,14 @@ async def start(update, context):
         )
         await update.message.reply_text(welcome_text)
     else:
-       keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")]]
-reply_markup = InlineKeyboardMarkup(keyboard)
-await update.message.reply_text(
-    "🚪 برای استفاده از ربات باید عضو کانال بشی.",
-    reply_markup=reply_markup
-)
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🚪 برای استفاده از ربات باید عضو کانال بشی.\n"
+            "👇 روی دکمه‌ی زیر بزن و عضو شو:",
+            reply_markup=reply_markup
+        )
+
 
 
 async def get_formats(update, context):
@@ -98,6 +100,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
