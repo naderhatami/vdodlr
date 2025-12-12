@@ -11,13 +11,25 @@ async def start(update, context):
     try:
         chat_member = await context.bot.get_chat_member(CHANNEL_ID, user_id)
     except Exception:
-        await update.message.reply_text("خطا در بررسی عضویت کانال ❌")
+        await update.message.reply_text("❌ خطا در بررسی عضویت کانال")
         return
 
     if chat_member.status in ["member", "administrator", "creator"]:
-        await update.message.reply_text("سلام! لینک ویدیو رو بفرست 🎬")
+        welcome_text = (
+            "🌸 خوش اومدی دوست عزیز!\n\n"
+            "✨ اینجا می‌تونی لینک یوتیوب رو بفرستی و من برات دانلودش کنم.\n"
+            "📽️ فقط کافیه لینک رو بفرستی و کیفیت مورد نظرت رو انتخاب کنی.\n\n"
+            "💡 آماده‌ای؟ لینک رو بفرست 🎬"
+        )
+        await update.message.reply_text(welcome_text)
     else:
-        await update.message.reply_text("برای استفاده از ربات باید عضو کانال بشی.همین الآن عضو شو : @goodgirl_lingerie")
+       keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")]]
+reply_markup = InlineKeyboardMarkup(keyboard)
+await update.message.reply_text(
+    "🚪 برای استفاده از ربات باید عضو کانال بشی.",
+    reply_markup=reply_markup
+)
+
 
 async def get_formats(update, context):
     user_id = update.message.from_user.id
@@ -86,6 +98,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
