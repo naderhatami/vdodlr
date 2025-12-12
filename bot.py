@@ -51,7 +51,11 @@ async def button(update, context):
     url = context.user_data.get('video_url')
     await query.answer()
 
-    ydl_opts = {'format': format_id, 'outtmpl': 'video.mp4'}
+    ydl_opts = {
+        'format': f'{format_id}+bestaudio/best',
+        'outtmpl': 'video.mp4',
+        'merge_output_format': 'mp4'
+    }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -59,6 +63,7 @@ async def button(update, context):
         await query.edit_message_text(text=f"دانلود با کیفیت {format_id} انجام شد ✅")
     except Exception:
         await query.edit_message_text(text="خطا در دانلود ویدیو ❌")
+
 
 def main():
     app = Application.builder().token(TOKEN).build()
@@ -69,6 +74,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
