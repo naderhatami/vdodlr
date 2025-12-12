@@ -33,14 +33,30 @@ async def start(update, context):
             "👇 روی دکمه‌های زیر بزن:",
             reply_markup=reply_markup
         )
-
-# هندلر برای دکمه بررسی عضویت
 async def check_membership(update, context):
     query = update.callback_query
-    await query.answer()
-    # دوباره تابع start رو صدا می‌زنیم
-    await start(update, context)
+    user_id = query.from_user.id
+    try:
+        chat_member = await context.bot.get_chat_member(CHANNEL_ID, user_id)
+    except Exception:
+        await query.message.reply_text("❌ خطا در بررسی عضویت کانال")
+        await query.answer()
+        return
 
+    if chat_member.status in ["member", "administrator", "creator"]:
+        welcome_text = (
+            "🌸 خوش اومدی دوست عزیز!\n\n"
+            "✨ حالا می‌تونی لینک یوتیوب رو بفرستی و من برات دانلودش کنم 🎬"
+        )
+        await query.message.reply_text(welcome_text)
+    else:
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/goodgirl_lingerie")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.message.reply_text(
+            "🚪 هنوز عضو کانال نیستی.\n👇 روی دکمه‌ی زیر بزن و عضو شو:",
+            reply_markup=reply_markup
+        )
+    await query.answer()
 
 async def get_formats(update, context):
     user_id = update.message.from_user.id
@@ -110,6 +126,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
