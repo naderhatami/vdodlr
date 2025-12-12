@@ -4,7 +4,7 @@ import yt_dlp
 import os, asyncio
 
 TOKEN = os.getenv("TOKEN")
-CHANNEL_USERNAME = "goodgirl_lingerie"  # بدون @
+CHANNEL_USERNAME = "goodgirl_lingerie" 
 
 async def start(update, context):
     user_id = update.message.from_user.id
@@ -61,3 +61,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
