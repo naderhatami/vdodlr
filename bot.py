@@ -52,12 +52,12 @@ async def button(update, context):
     except Exception:
         await query.edit_message_text(text="خطا در دانلود ویدیو ❌")
 
-async def main():
+def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_formats))
     app.add_handler(CallbackQueryHandler(button))
-    await app.run_polling()
+    app.run_polling()   # این خودش async رو هندل می‌کنه
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
