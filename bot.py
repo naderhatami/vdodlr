@@ -1,10 +1,10 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 import yt_dlp
-import os
+import os, asyncio
 
 TOKEN = os.getenv("TOKEN")
-CHANNEL_USERNAME = "@goodgirl_lingerie"
+CHANNEL_USERNAME = "goodgirl_lingerie"  # بدون @
 
 async def start(update, context):
     user_id = update.message.from_user.id
@@ -13,12 +13,12 @@ async def start(update, context):
     if chat_member.status in ["member", "administrator", "creator"]:
         await update.message.reply_text("سلام! لینک ویدیو رو بفرست 🎬")
     else:
-        await update.message.reply_text(f"برای استفاده از ربات باید عضو کانال {CHANNEL_USERNAME} بشی.")
+        await update.message.reply_text(f"برای استفاده از ربات باید عضو کانال @{CHANNEL_USERNAME} بشی.")
 
 async def get_formats(update, context):
     url = update.message.text
     try:
-        with yt_dlp.YoutubeDL({'listformats': True}) as ydl:
+        with yt_dlp.YoutubeDL({}) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = info.get('formats', [])
     except Exception:
@@ -27,8 +27,9 @@ async def get_formats(update, context):
 
     keyboard = []
     for f in formats:
-        if f.get('format_note') and f.get('filesize'):
-            kb_text = f"{f['format_note']} - {round(f['filesize']/1024/1024,1)}MB"
+        size = f.get("filesize") or f.get("filesize_approx")
+        if f.get('format_note') and size:
+            kb_text = f"{f['format_note']} - {round(size/1024/1024,1)}MB"
             keyboard.append([InlineKeyboardButton(kb_text, callback_data=f"{f['format_id']}|{url}")])
 
     if keyboard:
@@ -42,26 +43,21 @@ async def button(update, context):
     format_id, url = query.data.split("|")
     await query.answer()
 
-    ydl_opts = {
-        'format': format_id,
-        'outtmpl': 'video.mp4'
-    }
+    ydl_opts = {'format': format_id, 'outtmpl': 'video.mp4'}
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
+        await query.message.reply_video("video.mp4")
         await query.edit_message_text(text=f"دانلود با کیفیت {format_id} انجام شد ✅")
     except Exception:
         await query.edit_message_text(text="خطا در دانلود ویدیو ❌")
 
-def main():
+async def main():
     app = Application.builder().token(TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_formats))
     app.add_handler(CallbackQueryHandler(button))
-
-    app.run_polling()
+    await app.run_polling()
 
 if __name__ == "__main__":
-    main()
-
+    asyncio.run(main())
