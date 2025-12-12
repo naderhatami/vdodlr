@@ -17,7 +17,7 @@ async def start(update, context):
     if chat_member.status in ["member", "administrator", "creator"]:
         await update.message.reply_text("سلام! لینک ویدیو رو بفرست 🎬")
     else:
-        await update.message.reply_text("برای استفاده از ربات باید عضو کانال بشی.")
+        await update.message.reply_text("برای استفاده از ربات باید عضو کانال بشی.همین الآن عضو شو : @goodgirl_lingerie")
 
 async def get_formats(update, context):
     url = update.message.text.strip()
@@ -74,6 +74,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
