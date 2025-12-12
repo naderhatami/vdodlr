@@ -105,11 +105,12 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_formats))
     app.add_handler(CallbackQueryHandler(button))
-     app.add_handler(CallbackQueryHandler(check_membership, pattern="check_membership"))
+    app.add_handler(CallbackQueryHandler(check_membership, pattern="check_membership"))
     app.run_polling()
 
 if __name__ == "__main__":
     main()
+
 
 
 
